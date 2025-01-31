@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
 from datetime import date
+from llm_groq import connect_with_groq_api_mixtral  # Import the function
 
 # Load environment variables
 load_dotenv()
@@ -24,3 +25,9 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+@app.get("/analyze")
+async def analyze_lead():
+    """Endpoint to analyze lead using Groq API."""
+    response = connect_with_groq_api_mixtral()
+    return response  # Return the response from the Groq API

@@ -10,7 +10,7 @@ CREATE TABLE lead ( -- use lead insed of leads as showing issue on superbase
     name VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NULL,
     preferences JSONB NULL,
-    sentiment VARCHAR(50) NULL,
+    sentiment VARCHAR(50) NULL, 
     source VARCHAR(255) NULL,
     status VARCHAR(50) NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -57,3 +57,72 @@ CREATE TABLE selling_factors (
 
 
 -- Insertiong
+
+
+COPY lead (
+
+  name,
+
+  email,
+
+  phone,
+
+  status,
+
+  sentiment,
+
+  min_budget,
+
+  max_budget,
+
+  source,
+
+  preferences
+
+)
+
+FROM STDIN
+
+WITH (
+
+  FORMAT CSV,
+
+  HEADER true,
+
+  FORCE_NULL (email, phone, status, sentiment, min_budget, max_budget, source, preferences)
+
+);
+ 
+-- Add validation checks after import
+
+UPDATE lead
+
+SET sentiment = 'moderate'
+
+WHERE sentiment NOT IN ('highly_interested', 'interested', 'moderate', 'not_interested');
+ 
+-- Validate and format phone numbers (basic validation)
+
+UPDATE lead
+
+SET phone = NULL
+
+WHERE phone !~ '^\+?[0-9]{10,15}$';
+ 
+-- Validate email format
+
+UPDATE lead
+
+SET email = NULL
+
+WHERE email !~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$';
+ 
+-- Set default status if invalid
+
+UPDATE lead
+
+SET status = 'new'
+
+WHERE status NOT IN ('new', 'contacted', 'qualified', 'lost', 'won');
+
+ 

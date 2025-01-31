@@ -84,3 +84,5 @@ INSERT INTO lead (
     '{"industry": "Fashion", "location": "New York"}'::jsonb, 
     'Neutral', 'Website', 'Scheduling Visit', '2025-01-22T12:30:00+00:00'
 );
+
+
