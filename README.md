@@ -21,7 +21,7 @@
 
 ## Lead and RM Matching Algorithm
 
-### 2. Suggestions
+### 2. Suggestions/predictive
 
 Based on lead data (chat, form, calls) and sentimental analysis, the system provides:
 
@@ -33,3 +33,5 @@ Based on lead data (chat, form, calls) and sentimental analysis, the system prov
       - Strategies for handling negative feedback
       - Approaches for leveraging positive feedback
       - Lead engagement best practices
+
+### Matching
