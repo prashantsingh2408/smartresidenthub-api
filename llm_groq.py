@@ -10,7 +10,8 @@ def connect_with_groq_api_mixtral(role=None, content=None):
     """Connect to the Groq API and get chat completions for the mixtral model."""
     client = Groq()
     role = "system"
-    content = """You are a JSON generator. Only output valid JSON with no additional text or markdown formatting.
+    content = """
+    You are a JSON generator. Only output valid JSON with no additional text or markdown formatting.
 
     Provide analysis in this format exactly:
 
