@@ -25,4 +25,4 @@ tzdata==2025.1
 uvicorn==0.34.0
 
 # Groq API requirements
-groq==1.0.0  # Specify the version you need
+groq==0.16.0

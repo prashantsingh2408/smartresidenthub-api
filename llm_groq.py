@@ -10,57 +10,64 @@ def connect_with_groq_api_mixtral(role=None, content=None):
     """Connect to the Groq API and get chat completions for the mixtral model."""
     client = Groq()
     role = "system"
-    content = """
-    Provide analysis in this format exactly
+    content = """You are a JSON generator. Only output valid JSON with no additional text or markdown formatting.
+
+    Provide analysis in this format exactly:
 
     # Sentiment Analysis Responses format
-    {
-      "tabs": {
-        "sentiment": {
-          "title": "Site Visit Sentiment Analysis",
-          "overall_sentiment": {
-            "label": "Overall Sentiment",
-            "description": "Based on site visit feedback and interactions",
-            "value": "{lead.sentiment}"
-          },
-          "key_insights": [
-            "Shows strong interest in property amenities",
-            "Price sensitivity detected in conversations",
-            "Multiple site visits indicate serious intent"
-          ]
-        },
-        "prediction": {
-          "title": "Conversion Prediction",
-          "conversion_probability": {
-            "label": "Conversion Probability",
-            "description": "Based on historical data and current engagement",
-            "value": "{lead.conversion_probability}%"
-          },
-          "contributing_factors": [
-            "Site visit engagement level",
-            "Budget alignment with property options",
-            "Response rate to communications"
-          ]
-        },
-        "suggestions": {
-          "title": "Recommended Actions",
-          "recommended_actions": [
-            {
-              "action": "Schedule Follow-up Call",
-              "description": "Based on the sentiment analysis, a personal follow-up within 48 hours could increase conversion chances."
-            },
-            {
-              "action": "Share Similar Properties",
-              "description": "Send curated list of properties matching preferences to maintain engagement."
-            },
-            {
-              "action": "Offer Virtual Tour",
-              "description": "Provide a virtual tour option for better visualization of the property."
-            }
-          ]
-        }
+      {
+  "site_visit_sentiment_analysis": {
+    "title": "Site Visit Sentiment Analysis",
+    "overall_sentiment": {
+      "score": 85,
+      "confidence": 92,
+      "color": "green"
+    },
+    "key_insights": [
+      {
+        "description": "Strong interest in property amenities",
+        "confidence": 90
+      },
+      {
+        "description": "Price sensitivity detected in feedback",
+        "confidence": 75
+      },
+      {
+        "description": "Single site visit indicates interest",
+        "confidence": 80
       }
+    ]
+  },
+  "conversion_prediction": {
+    "title": "Conversion Prediction",
+    "conversion_probability": {
+      "score": 85,
+      "color": "green"
+    },
+    "engagement_metrics": {
+      "engagement_score": 78,
+      "follow_up_urgency": "medium"
     }
+  },
+  "recommended_actions": {
+    "title": "Recommended Actions",
+    "actions": [
+      {
+        "action": "Schedule Follow-up Call",
+        "description": "Based on the sentiment analysis, a personal follow-up within 48 hours could increase conversion chances."
+      },
+      {
+        "action": "Share Similar Properties",
+        "description": "Send curated list of properties matching preferences to maintain engagement."
+      },
+      {
+        "action": "Discuss Financial Options",
+        "description": "Address budget concerns by discussing financial options or property price negotiation."
+      }
+    ]
+  }
+}
+
 
     ## Input data
 
@@ -128,7 +135,17 @@ def connect_with_groq_api_mixtral(role=None, content=None):
     result = ""
     for chunk in additional_completion:
         result += chunk.choices[0].delta.content or ""
-    return result  # Return the complete response
+        
+    # Extract just the JSON part
+    try:
+        start_idx = result.find('{')
+        end_idx = result.rfind('}') + 1
+        if start_idx >= 0 and end_idx > 0:
+            result = result[start_idx:end_idx]
+    except:
+        pass
+        
+    return result
 
 # Call the functions to connect with Groq API
 # connect_with_groq_api_deepseek()

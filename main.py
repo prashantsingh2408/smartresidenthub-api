@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 import os
 from dotenv import load_dotenv
 from datetime import date
@@ -9,6 +9,13 @@ load_dotenv()
 
 # Initialize the FastAPI app
 app = FastAPI()
+
+# Set a timeout for the FastAPI application
+@app.middleware("http")
+async def timeout_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Timeout"] = "180"  # Set timeout in seconds
+    return response
 
 # Database connection settings
 DATABASE_URL = os.getenv('DATABASE_URL')
