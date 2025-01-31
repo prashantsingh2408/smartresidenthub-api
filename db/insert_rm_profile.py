@@ -1,21 +1,15 @@
-from supabase import create_client, Client
-
-# Define your Supabase URL and Key
-SUPABASE_URL = "https://thwdxicmulviwctkbhek.supabase.co"
-SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRod2R4aWNtdWx2aXdjdGtiaGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDExNjMsImV4cCI6MjA1MzgxNzE2M30.kviglZ2Awdn6aEfei93g49wIvDoyZhhvWZT5-d0do9g"
+from supabase_config import get_supabase_client, insert_data, fetch_data, delete_data
 
 # Initialize the Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+supabase = get_supabase_client()
 
 # Example usage: Fetch data from the rm_profiles table
-response = supabase.table('rm_profiles').select('*').execute()
-
-# Print the result (list of profiles)
-print(response.data)
+response = fetch_data('rm_profiles')
+print("Existing RM Profiles:", response)
 
 # Delete all existing data in the 'rm_profiles' table
-delete_profiles_response = supabase.table('rm_profiles').delete().execute()
-print("Deleted old rm_profiles data:", delete_profiles_response.data)
+delete_profiles_response = delete_data('rm_profiles', {})
+print("Deleted old RM profiles data:", delete_profiles_response)
 
 profiles = [
     {
@@ -95,6 +89,7 @@ profiles = [
     }
 ]
 
-insert_response = supabase.table('rm_profiles').insert(profiles).execute()
-# Print the inserted record's response
+# Use the helper function to insert new RM profiles
+insert_response = insert_data('rm_profiles', profiles)
+print("Inserted new RM profiles:", insert_response)
 

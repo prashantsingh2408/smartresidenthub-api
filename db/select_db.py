@@ -1,29 +1,22 @@
-from supabase import create_client, Client
-import json
+from supabase_config import get_supabase_client, fetch_data
 from pprint import pprint
 
-SUPABASE_URL = "https://thwdxicmulviwctkbhek.supabase.co"
-SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRod2R4aWNtdWx2aXdjdGtiaGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDExNjMsImV4cCI6MjA1MzgxNzE2M30.kviglZ2Awdn6aEfei93g49wIvDoyZhhvWZT5-d0do9g"
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-
-print("\n=== RM Profiles ===")
-response = supabase.table('rm_profiles').select('*').execute()
-pprint(response.data)
-
-print("\n=== Selling Factors ===")
-response = supabase.table('selling_factors').select('*').execute()
-pprint(response.data)
-
-# print("\n=== Leads_table ===")
-# response = supabase.table('leads_table').select('*').execute()
-# pprint(response.data)
+# Initialize the Supabase client
+supabase = get_supabase_client()
 
 print("\n=== Lead ===")
-response = supabase.table('lead').select('*').execute()
-pprint(response.data)
+response = fetch_data('lead')
+pprint(response)
 
-# site_visits
-print("\n=== Site Visits ===")
-response = supabase.table('site_visits').select('*').execute()
-pprint(response.data)
+# Uncomment to fetch other tables
+# print("\n=== RM Profiles ===")
+# response = fetch_data('rm_profiles')
+# pprint(response)
+
+# print("\n=== Selling Factors ===")
+# response = fetch_data('selling_factors')
+# pprint(response)
+
+# print("\n=== Site Visits ===")
+# response = fetch_data('site_visits')
+# pprint(response)

@@ -1,11 +1,7 @@
-from supabase import create_client, Client
+from supabase_config import get_supabase_client, insert_data
 
-# Define your Supabase URL and Key
-SUPABASE_URL = "https://thwdxicmulviwctkbhek.supabase.co"
-SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRod2R4aWNtdWx2aXdjdGtiaGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNDExNjMsImV4cCI6MjA1MzgxNzE2M30.kviglZ2Awdn6aEfei93g49wIvDoyZhhvWZT5-d0do9g"
-SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRod2R4aWNtdWx2aXdjdGtiaGVrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODI0MTE2MywiZXhwIjoyMDUzODE3MTYzfQ.owlJOmGx29AvqpRiMyHoxmVwdd91Du0G0iHxOR-pQD0"
 # Initialize the Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+supabase = get_supabase_client()
 
 profiles = [
     {
@@ -474,7 +470,7 @@ profiles = [
     }
 ]
 
-insert_response = supabase.table('lead').insert(profiles).execute()
-# Print the inserted record's response
-print(insert_response)
+# Use the helper function to insert profiles
+insert_response = insert_data('lead', profiles)
+print("Inserted records:", insert_response)
 

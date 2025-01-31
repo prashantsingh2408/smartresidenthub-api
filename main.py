@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 import os
 from dotenv import load_dotenv
 from datetime import date
-from llm_groq import connect_with_groq_api_mixtral  # Import the function
+from llm_groq import connect_with_groq_api_mixtral, match_rm_to_lead  # Import the function and match_rm_to_lead
 
 # Load environment variables
 load_dotenv()
@@ -41,3 +41,9 @@ async def analyze_lead(lead_id: str = None, email: str = None):
     
     response = await connect_with_groq_api_mixtral(lead_id=lead_id, email=email)  # Pass both parameters
     return response  # Return the response from the Groq API
+
+@app.get("/match_rm/{lead_id}")
+async def match_rm(lead_id: str):
+    """Endpoint to match RM profiles to a lead."""
+    response = await match_rm_to_lead(lead_id)
+    return response
