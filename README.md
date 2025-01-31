@@ -21,6 +21,6 @@
 
 ---
 
-### analyze API(Lead intelig)
+### analyze API(Lead Intelligence page)
 ### Lead chat Summary 
 ### RM-Lead Matching API
