@@ -30,9 +30,6 @@ def get_temporary_aws_credentials():
 
 # Call the function to get temporary AWS credentials
 get_temporary_aws_credentials()
-# os.environ['AWS_ACCESS_KEY_ID'] = "AKIAVUXUHEW2LB4MNP5H"
-# os.environ['AWS_SECRET_ACCESS_KEY'] = "AKIAVUXUHEW2LB4MNP5H"
-# os.environ['AWS_SESSION_TOKEN'] = "dshk107N6/IkMdH1wWBIei3S9BQkvUkVk4Rsa6uI"
 
 boto3.setup_default_session(region_name='us-east-1')
 
