@@ -1,16 +1,18 @@
 from groq import Groq
 import os
+from db.get_lead_detail_by_id import get_lead_detail_by_id
+from db.get_lead_detail_by_email import get_lead_detail
+import asyncio  # Import asyncio
 
 os.environ['GROQ_API_KEY'] = "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"
 
 # Update version to production
 VERSION = "1.0.0"  # Change this to your production version
 
-def connect_with_groq_api_mixtral(role=None, content=None):
+async def connect_with_groq_api_mixtral(lead_id=None, email=None):
     """Connect to the Groq API and get chat completions for the mixtral model."""
     client = Groq()
-    role = "system"
-    content = """
+    prompt = """
     You are a JSON generator. Only output valid JSON with no additional text or markdown formatting.
 
     Provide analysis in this format exactly:
@@ -74,48 +76,25 @@ def connect_with_groq_api_mixtral(role=None, content=None):
 
 
     use this data 
+"""
+    # Fetch lead data based on ID or email
+    if lead_id:
+        content = get_lead_detail_by_id(lead_id)
+    elif email:
+        content = get_lead_detail(email=email)
+    else:
+        raise ValueError("Either lead_id or email must be provided.")
 
-    [{'assigned_rm_id': '7d47c093-b00a-4f0c-bbf9-4023e678ff89',
-      'budget': 50000,
-      'conversion_probability': 0.85,
-      'created_at': '2025-01-31T00:00:00+00:00',
-      'email': 'john.doe@example.com',
-      'id': 'b42878d2-dba4-4c3c-93f7-0756be06f24d',
-      'interaction_history': [{'action': 'Initial Contact', 'date': '2025-01-29'}],
-      'last_contact_date': '2025-01-30T14:00:00+00:00',
-      'name': 'John Doe',
-      'phone': '+1234567890',
-      'preferences': {'industry': 'Finance', 'location': 'New York'},
-      'sentiment': 'Positive',
-      'source': 'Website',
-      'status': 'New',
-      'updated_at': '2025-01-31T00:00:00+00:00'},
-    {'assigned_rm_id': 'f917f9c9-53a6-41d4-9379-abb1e6354b39',
-      'budget': 35000,
-      'conversion_probability': 0.75,
-      'created_at': '2025-01-30T15:00:00+00:00',
-      'email': 'jane.smith@example.com',
-      'id': '46c9d755-e079-4a0a-81fa-6ffbd8fa4c5b',
-      'interaction_history': [{'action': 'Follow-up Call', 'date': '2025-01-30'}],
-      'last_contact_date': '2025-01-30T12:00:00+00:00',
-      'name': 'Jane Smith',
-      'phone': '+1234567891',
-      'preferences': {'industry': 'Retail', 'location': 'Los Angeles'},
-      'sentiment': 'Neutral',
-      'source': 'Referral',
-      'status': 'Contacted',
-      'updated_at': '2025-01-30T15:00:00+00:00'}]
+    # Ensure content is a string
+    if isinstance(content, list):
+        # If content is a list of dictionaries, extract the relevant string data
+        content = " ".join([str(item) for item in content])  # Convert each item to string
+    elif not isinstance(content, str):
+        content = str(content)  # Convert to string if necessary
 
-    {
-            "lead_name": "John Doe",
-            "feedback": "The property was amazing! I loved the spacious rooms, the natural  lighting, and the amenities provided. "
-                        "The location is perfect for my commute, and I can definitely see myself living here. "
-                        "However, I wish the price was a bit more flexible. Overall, a fantastic place!"
-    },
-    """
+    content = content + prompt
 
-    
-    # Define a message to send to the Groq model
+    role = "system"
     additional_messages = [
         {
             "role": role,
@@ -123,6 +102,7 @@ def connect_with_groq_api_mixtral(role=None, content=None):
         }
     ]
 
+    # Call the create method without await if it's synchronous
     additional_completion = client.chat.completions.create(
         model="mixtral-8x7b-32768",
         messages=additional_messages,
@@ -143,15 +123,18 @@ def connect_with_groq_api_mixtral(role=None, content=None):
         end_idx = result.rfind('}') + 1
         if start_idx >= 0 and end_idx > 0:
             result = result[start_idx:end_idx]
-    except:
-        pass
+    except Exception as e:
+        print(f"An error occurred while extracting JSON: {e}")
         
-    return result
+    return result  # Return the complete response
 
-# Call the functions to connect with Groq API
-# connect_with_groq_api_deepseek()
+# Example usage
+if __name__ == "__main__":
+    lead_id_to_fetch = "1e88b663-d6a1-32c9-bd02-665fb39b80b1"
+    email_to_fetch = None  # Replace with the desired email
 
-connect_with_groq_api_mixtral()
-print(connect_with_groq_api_mixtral())
+    # Use asyncio to run the async function
+    response = asyncio.run(connect_with_groq_api_mixtral(lead_id=lead_id_to_fetch, email=email_to_fetch))
+    print("Groq API Response:", response)
 
 

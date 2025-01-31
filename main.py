@@ -33,8 +33,11 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
-@app.get("/analyze")
-async def analyze_lead():
+@app.get("/analyze/")
+async def analyze_lead(lead_id: str = None, email: str = None):
     """Endpoint to analyze lead using Groq API."""
-    response = connect_with_groq_api_mixtral()
+    if not lead_id and not email:
+        return {"error": "Either lead_id or email must be provided."}
+    
+    response = await connect_with_groq_api_mixtral(lead_id=lead_id, email=email)  # Pass both parameters
     return response  # Return the response from the Groq API
