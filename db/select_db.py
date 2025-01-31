@@ -15,9 +15,13 @@ print("\n=== Selling Factors ===")
 response = supabase.table('selling_factors').select('*').execute()
 pprint(response.data)
 
-# print("\n=== Leads ===")
+# print("\n=== Leads_table ===")
 # response = supabase.table('leads_table').select('*').execute()
 # pprint(response.data)
+
+print("\n=== Lead ===")
+response = supabase.table('lead').select('*').execute()
+pprint(response.data)
 
 # site_visits
 print("\n=== Site Visits ===")
