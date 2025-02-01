@@ -27,3 +27,6 @@ uvicorn==0.34.0
 # Groq API requirements
 groq==0.16.0
 supabase
+
+# Add the following lines to your requirements.txt
+requests

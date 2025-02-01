@@ -1,8 +1,9 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 import os
 from dotenv import load_dotenv
 from datetime import date
-from llm_groq import connect_with_groq_api_mixtral, match_rm_to_lead  # Import the function and match_rm_to_lead
+from llm_groq import connect_with_groq_api_mixtral, match_rm_to_lead, chat_with_lead_and_rm  # Import the function and match_rm_to_lead
+from exotel_api import make_call  # Add this import at the top
 
 # Load environment variables
 load_dotenv()
@@ -34,16 +35,32 @@ async def health_check():
     return {"status": "healthy"}
 
 @app.get("/analyze/")
-async def analyze_lead(lead_id: str = None, email: str = None):
+async def analyze_lead(lead_id: str = None, email: str = None, phone: str = None):
     """Endpoint to analyze lead using Groq API."""
-    if not lead_id and not email:
-        return {"error": "Either lead_id or email must be provided."}
+    if not any([lead_id, email, phone]):
+        return {"error": "Either lead_id, email or phone must be provided."}
     
-    response = await connect_with_groq_api_mixtral(lead_id=lead_id, email=email)  # Pass both parameters
-    return response  # Return the response from the Groq API
+    response = await connect_with_groq_api_mixtral(lead_id=lead_id, email=email, phone=phone)
+    return response
 
 @app.get("/match_rm/{lead_id}")
 async def match_rm(lead_id: str):
     """Endpoint to match RM profiles to a lead."""
     response = await match_rm_to_lead(lead_id)
+    return response
+
+@app.post("/chat/{lead_id}")
+async def chat_with_lead(lead_id: str, user_message: str):
+    """Endpoint to chat with the lead and RM profiles."""
+    response = await chat_with_lead_and_rm(lead_id, user_message)
+    return response
+
+# New endpoint to make a call directly
+@app.get("/make-call/{lead_phone}/{rm_phone}")
+async def make_call_endpoint(lead_phone: str, rm_phone: str):
+    """Endpoint to make a call between a lead and an RM."""
+    if not lead_phone or not rm_phone:
+        raise HTTPException(status_code=400, detail="lead_phone and rm_phone are required.")
+    
+    response = make_call(lead_phone, rm_phone)  # No await since make_call is now synchronous
     return response

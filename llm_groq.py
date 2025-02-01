@@ -1,7 +1,8 @@
 from groq import Groq
 import os
 from db.get_lead_detail_by_id import get_lead_detail_by_id
-from db.get_lead_detail_by_email import get_lead_detail
+from db.get_lead_detail_by_email import get_lead_detail_by_email
+from db.get_lead_detail_by_phone import get_lead_detail_by_phone
 from db.get_rm_profiles import get_rm_profiles  # Assuming you have a function to get RM profiles
 import asyncio  # Import asyncio
 
@@ -10,7 +11,7 @@ os.environ['GROQ_API_KEY'] = "gsk_vXcD0TmzyF72mFlz0J3lWGdyb3FYkkzP6nUnE8DRqgYR8I
 # Update version to production
 VERSION = "1.0.0"  # Change this to your production version
 
-async def connect_with_groq_api_mixtral(lead_id=None, email=None):
+async def connect_with_groq_api_mixtral(lead_id=None, email=None, phone=None):
     """Connect to the Groq API and get chat completions for the mixtral model."""
     client = Groq()
     prompt = """
@@ -82,9 +83,11 @@ async def connect_with_groq_api_mixtral(lead_id=None, email=None):
     if lead_id:
         content = get_lead_detail_by_id(lead_id)
     elif email:
-        content = get_lead_detail(email=email)
+        content = get_lead_detail_by_email(email=email)
+    elif phone:
+        content = get_lead_detail_by_phone(phone=phone)
     else:
-        raise ValueError("Either lead_id or email must be provided.")
+        raise ValueError("Either lead_id, email or phone must be provided.")
 
     # Ensure content is a string
     if isinstance(content, list):
@@ -123,7 +126,10 @@ async def connect_with_groq_api_mixtral(lead_id=None, email=None):
         start_idx = result.find('{')
         end_idx = result.rfind('}') + 1
         if start_idx >= 0 and end_idx > 0:
-            result = result[start_idx:end_idx]
+            result = result[start_idx:end_idx].replace("\\n", "").replace("\\\"", "\"").strip()  # Clean up the JSON format
+            result = result.replace("\n", "").replace("  ", "")  # Remove newlines and extra spaces for proper JSON format
+            result = result.replace("\\", "")  # Remove any remaining backslashes
+            result = result.replace("\"{", "{").replace("}\"", "}")  # Clean up any leading/trailing quotes
     except Exception as e:
         print(f"An error occurred while extracting JSON: {e}")
         
@@ -169,7 +175,52 @@ async def match_rm_to_lead(lead_id):
         start_idx = result.find('{')
         end_idx = result.rfind('}') + 1
         if start_idx >= 0 and end_idx > 0:
-            result = result[start_idx:end_idx]
+            result = result[start_idx:end_idx].replace("\\n", "").replace("\\\"", "\"")  # Clean up the JSON format
+    except Exception as e:
+        print(f"An error occurred while extracting JSON: {e}")
+
+    return result  # Return the complete response
+
+async def chat_with_lead_and_rm(lead_id, user_message):
+    """Chat with the lead and RM profiles based on the lead ID and user message."""
+    # Fetch lead details
+    lead_details = get_lead_detail_by_id(lead_id)
+    
+    # Fetch RM profiles
+    rm_profiles = get_rm_profiles()
+
+    # Prepare the prompt for Groq API
+    prompt = f"Lead Details: {lead_details}\nRM Profiles: {rm_profiles}\nUser Message: {user_message}\nRespond appropriately."
+
+    # Call the Groq API with the prepared prompt
+    client = Groq()
+    additional_messages = [
+        {
+            "role": "user",
+            "content": prompt
+        }
+    ]
+
+    additional_completion = await client.chat.completions.create(
+        model="mixtral-8x7b-32768",
+        messages=additional_messages,
+        temperature=1,
+        max_completion_tokens=1024,
+        top_p=1,
+        stream=True,
+        stop=None,
+    )
+
+    result = ""
+    for chunk in additional_completion:
+        result += chunk.choices[0].delta.content or ""
+
+    # Extract just the JSON part
+    try:
+        start_idx = result.find('{')
+        end_idx = result.rfind('}') + 1
+        if start_idx >= 0 and end_idx > 0:
+            result = result[start_idx:end_idx].replace("\\n", "").replace("\\\"", "\"")  # Clean up the JSON format
     except Exception as e:
         print(f"An error occurred while extracting JSON: {e}")
 
