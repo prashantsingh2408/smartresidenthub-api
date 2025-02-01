@@ -2,25 +2,6 @@
 
 ## **API Endpoints**  
 
-### **1. Sentiment Analysis**  
-
-**Request Body:**  
-- Lead chat data  
-- RM comments  
-- End-user feedback form  
-- Call/audio recordings  
-
-**Response:**  
-- **Sentiment Score Categories:**  
-  - Highly Interested  
-  - Interested  
-  - Moderate  
-  - Not Interested  
-  - Conversion Chance  
-- **RM Rating**  
-
----
-
-### analyze API(Lead Intelligence page)
-### Lead chat Summary 
-### RM-Lead Matching API
+https://smartresidenthub-api.vercel.app/analyze/?lead_id=1e88b663-d6a1-32c9-bd02-665fb39b80b1
+https://smartresidenthub-api.vercel.app/match_rm/1e88b663-d6a1-32c9-bd02-665fb39b80b1
+https://smartresidenthub-api.vercel.app/make-call/8417891491/9786095546
